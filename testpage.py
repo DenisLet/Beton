@@ -39,7 +39,7 @@ async def process_sport(sport):
 
 async def main():
     # Создайте экземпляры класса Sport для каждого вида спорта
-    basketball = Sport('https://www.basketball24.com/', 40, 10, 3)
+    basketball = Sport('https://www.basketball24.com/', 40, 10, 4, 3)
     soccer = Sport('https://www.soccer24.com/', 90, 45, 2, 1)
     handball = Sport('https://www.handball24.com/', 60, 30, 2, 7)
     hockey = Sport('https://www.icehockey24.com/', 60, 20, 3, 4)
