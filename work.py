@@ -155,3 +155,19 @@ s = [
 # coefs = (6, 3, 1.49)
 # is_favorite = True if 1<coefs[0] < 1.5 or 1<coefs[2]<1.5 else False
 # print(is_favorite)
+
+# while True:
+#     user_input = input("Enter scores in first half: ")
+#     try:
+#         if ' ' in user_input:
+#             first_half_input = tuple([int(x) for x in user_input.split()])
+#         else:
+#             first_half_input = tuple([int(x) for x in list(user_input)])
+#         break
+#     except ValueError:
+#         print("Format : 00 or 0 0")
+
+# case_counter, half2_eval_1, half2_more_1, half2_eval_0 = 0, 0, 0, 0
+# case_counter_favor, half2_eval_1_favor, half2_more_1_favor, half2_eval_0_favor = 0, 0, 0, 0
+
+print(7 in [1,2,3,4,5,6])

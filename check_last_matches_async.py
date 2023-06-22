@@ -1,7 +1,7 @@
 import asyncio
 from playwright.async_api import async_playwright
 import re
-from sheet_with_possible_scores import soccer_first_half_often
+from sheet_with_often_scores import soccer_first_half_often
 
 class Sport:
     def __init__(self, url, duration, period_duration, number_of_periods, locator):
@@ -85,87 +85,37 @@ class Soccer(Sport):
     async def daily_scanning_1half_with_2half(self):
         all_matches = await self.get_clear_results()
 
-        while True:
-            user_input = input("Enter scores in first half: ")
-            try:
-                if ' ' in user_input:
-                    first_half_input = tuple([int(x) for x in user_input.split()])
-                else:
-                    first_half_input = tuple([int(x) for x in list(user_input)])
-                break
-            except ValueError:
-                print("Format : 00 or 0 0")
-
-        case_counter, half2_eval_1, half2_more_1, half2_eval_0 = 0, 0, 0, 0
-        case_counter_favor, half2_eval_1_favor, half2_more_1_favor, half2_eval_0_favor = 0, 0, 0, 0
-        for each_match in all_matches:
-            half1 = tuple(each_match[0][:2])
-            half2 = tuple(each_match[0][2:])
-            real_half2 = sum(half2) -sum(half1)
-            coefs = tuple(each_match[1])
-            is_favorite = True if 1<coefs[0] < 1.5 or 1<coefs[2]<1.5 else False
-            if half1 == first_half_input:
-                case_counter += 1
-                if is_favorite:
-                    case_counter_favor += 1
-                if real_half2 == 1:
-                    print('case half2 == 1:',each_match[0],each_match[1])
-                    half2_eval_1 += 1
+        for first_half_input in soccer_first_half_often:
+            print(first_half_input)
+            case_counter, half2_eval_1, half2_more_1, half2_eval_0 = 0, 0, 0, 0
+            case_counter_favor, half2_eval_1_favor, half2_more_1_favor, half2_eval_0_favor = 0, 0, 0, 0
+            for each_match in all_matches:
+                half1 = tuple(each_match[0][:2])
+                half2 = tuple(each_match[0][2:])
+                real_half2 = sum(half2) -sum(half1)
+                coefs = tuple(each_match[1])
+                is_favorite = True if 1<coefs[0] < 1.5 or 1<coefs[2]<1.5 else False
+                if half1 == first_half_input:
+                    case_counter += 1
                     if is_favorite:
-                        print()
-                        print('case half2 == 1:', each_match[0], each_match[1])
-                        half2_eval_1_favor += 1
-                elif real_half2 > 1:
-                    print('case half2 >> 1:', each_match[0],each_match[1])
-                    half2_more_1 += 1
-                    if is_favorite:
-                        print()
-                        print('case half2 == 1:', each_match[0], each_match[1])
-                        half2_more_1_favor += 1
-                else:
-                    print('case half2 == 0:', each_match[0],each_match[1])
-                    half2_eval_0 += 1
-                    if is_favorite:
-                        print()
-                        print('case half2 == 1:', each_match[0], each_match[1])
-                        half2_eval_0_favor += 1
-        print(f'Total matches with 1h score({first_half_input} : {case_counter} | 2half with 0: {half2_eval_0} | 2half with 1: {half2_eval_1} | 2 half with >2 {half2_more_1}')
-        print(
-            f'Total matches with 1h score with FAVORIT ({first_half_input} : {case_counter_favor} | 2half with 0: {half2_eval_0_favor} | 2half with 1: {half2_eval_1_favor} | 2 half with >2 {half2_more_1_favor}')
-            # t1_score_1h = each_match[0][0]
-            # t2_score_1h = each_match[0][1]
-            # first_half = (t1_score_1h, t2_score_1h)
-            # t1_score_ft = each_match[0][2]
-            # t2_score_ft = each_match[0][3]
-            # t1_coef = each_match[1][0]
-            # t2_coef = each_match[1][2]
-            # draw_coef = each_match[1][1]
-
-
-
-
-
-
-    # while True:
-    #     user_input = input("Enter scores in first half: ")
-    #     try:
-    #         if ' ' in user_input:
-    #             first_half = [int(x) for x in user_input.split()]
-    #         else:
-    #             first_half = [int(x) for x in list(user_input)]
-    #         break
-    #     except ValueError:
-    #         print("Format : 00 or 0 0")
-
-
-
-
-
-
-
-
-
-
+                        case_counter_favor += 1
+                    if real_half2 == 1:
+                        half2_eval_1 += 1
+                        if is_favorite:
+                            half2_eval_1_favor += 1
+                    elif real_half2 > 1:
+                        half2_more_1 += 1
+                        if is_favorite:
+                            half2_more_1_favor += 1
+                    else:
+                        half2_eval_0 += 1
+                        if is_favorite:
+                            half2_eval_0_favor += 1
+            if case_counter == 0 or case_counter_favor == 0:
+                continue
+            print(f'Total matches with 1h score({first_half_input} : {case_counter} | 2half with 0: {half2_eval_0} | 2half with 1: {half2_eval_1} | 2 half with >2 {half2_more_1}')
+            print(
+                f'Total matches with 1h score with FAVORIT ({first_half_input} : {case_counter_favor} | 2half with 0: {half2_eval_0_favor} | 2half with 1: {half2_eval_1_favor} | 2 half with >2 {half2_more_1_favor}')
 
 
 class Basketball(Sport):
