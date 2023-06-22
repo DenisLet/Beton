@@ -110,24 +110,48 @@ s = [
 
 
 
-for line in s:
-    home_coef, draw_coef, away_coef = [float(i) if '.' in i else 0 for i in line[-3:]]
-    print(line)
-    try:
-        team1_1half, team2_1half = re.findall(r'\(\d\)', ' '.join(line))
-        mark = line.index(team1_1half)
-        if 'After' not in line:
-            team1_all = int(line[mark - 2])
-            team2_all = int(line[mark - 1])
-        else:
-            team1_all = int(line[mark + 2])
-            team2_all = int(line[mark + 3])
+# for line in s:
+#     home_coef, draw_coef, away_coef = [float(i) if '.' in i else 0 for i in line[-3:]]
+#     print(line)
+#     try:
+#         team1_1half, team2_1half = re.findall(r'\(\d\)', ' '.join(line))
+#         mark = line.index(team1_1half)
+#         if 'After' not in line:
+#             team1_all = int(line[mark - 2])
+#             team2_all = int(line[mark - 1])
+#         else:
+#             team1_all = int(line[mark + 2])
+#             team2_all = int(line[mark + 3])
+#
+#         team1_1half = int(team1_1half.strip('()'))
+#         team2_1half = int(team2_1half.strip('()'))
+#
+#     except:
+#         team1_1half, team2_1half, team1_all, team2_all = -1, -1, -1, -1
+#     print(team1_1half, team2_1half, team1_all, team2_all)
+# results = [(1, 1, 2, 2), (1, 2, 2, 2), (0, 0, 1, 0), (3, 0, 4, 1), (0, 0, 0, 0), (1, 2, 2, 3)]
+#
+# score_dict = {}
+#
+# for match in results:
+#     first_half_score = (match[0], match[1])
+#     second_half_goals = (match[2], match[3])
+#
+#     if first_half_score not in score_dict:
+#         score_dict[first_half_score] = [1, 0, 0]
+#     else:
+#         score_dict[first_half_score][0] += 1
+#
+#     if second_half_goals[0] == 1:
+#         score_dict[first_half_score][1] += 1
+#     if second_half_goals[0] > 1:
+#         score_dict[first_half_score][2] += 1
+#
+# score_dict = {key: tuple(value) for key, value in score_dict.items()}
+#
+# print(score_dict)
 
-        team1_1half = int(team1_1half.strip('()'))
-        team2_1half = int(team2_1half.strip('()'))
 
-    except:
-        team1_1half, team2_1half, team1_all, team2_all = -1, -1, -1, -1
-    print(team1_1half, team2_1half, team1_all, team2_all)
-
-
+# coefs = (6, 3, 1.49)
+# is_favorite = True if 1<coefs[0] < 1.5 or 1<coefs[2]<1.5 else False
+# print(is_favorite)
