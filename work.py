@@ -170,4 +170,7 @@ s = [
 # case_counter, half2_eval_1, half2_more_1, half2_eval_0 = 0, 0, 0, 0
 # case_counter_favor, half2_eval_1_favor, half2_more_1_favor, half2_eval_0_favor = 0, 0, 0, 0
 
-print(7 in [1,2,3,4,5,6])
+fav = False
+
+if not fav:
+    print('a')

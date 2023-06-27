@@ -49,6 +49,9 @@ class Sport:
         input('Change page and press Enter to continue:')
 
 
+
+
+
 class Soccer(Sport):
     def __init__(self):
         super().__init__('https://www.soccer24.com/', 90, 45, 2, 1)
@@ -149,6 +152,7 @@ async def main():
     # await basketball.switch_to_live()
 
     while True:
+
         soccer.stop_to_change_page()
         # r = await soccer.get_clear_results()
         await soccer.daily_scanning_1half_with_2half()
