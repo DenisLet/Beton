@@ -2,8 +2,8 @@ import asyncio
 from playwright.async_api import async_playwright
 from time import sleep
 from notifiers import get_notifier
-token = "5655731349:AAHpSNsDXkUochVg7jtVNeFadDa2JeA9-jE"
-id = "5521639964"
+token = "XXXX"
+id = "XXXx"
 import re
 
 def bet_siska(data):
