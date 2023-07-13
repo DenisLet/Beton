@@ -2,6 +2,7 @@ import asyncio
 from playwright.async_api import async_playwright
 import re
 from sheet_with_often_scores import soccer_first_half_often
+import os
 
 class Sport:
     def __init__(self, url, duration, period_duration, number_of_periods, locator):
@@ -13,6 +14,7 @@ class Sport:
         self.page = None
         self.context = None
         self.browser = None
+        self.league_name = None
 
     async def open_page(self):
         pw = await async_playwright().start()
@@ -29,6 +31,10 @@ class Sport:
 
     async def get_data_from_page(self):
         all_matches = await self.page.query_selector_all(self.locator)
+        champ = await self.page.locator('.heading__name').evaluate('(element) => element.textContent')
+        year = await self.page.locator('.heading__info').evaluate('(element) => element.textContent')
+        year = year.replace('/','_')
+        self.league_name = f'{champ} {year}'
         return all_matches
 
 
@@ -73,6 +79,16 @@ class Sport:
                     # print(odds_text)
                     to_list.append(odds_text)
             all_data_list.append(to_list)
+
+        folder_path = os.path.join(os.getcwd(), 'records')
+        os.makedirs(folder_path, exist_ok=True)
+        file_path = os.path.join(folder_path, self.league_name)
+
+        with open(file_path, 'w') as file:
+            for data in all_data_list:
+                line = ' <<!>> '.join([' '.join(sublist) for sublist in data])
+                file.write(line + '\n')
+
         return all_data_list
 
 
