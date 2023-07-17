@@ -1,5 +1,10 @@
+import os
 import asyncio
 from playwright.async_api import async_playwright, TimeoutError
+
+
+def list_to_string(input_list):
+    return '<$>'.join(map(str, input_list))
 
 
 class Sport:
@@ -46,7 +51,7 @@ class Sport:
                     break
             except Exception:
                 continue
-        print("Season links:")
+        print("Ссылки на сезоны:")
         print(links)
         assert self.number_of_seasons == len(links), 'НЕВЕРНОЕ КОЛИЧЕСТВО СЕЗОНОВ'
         return links
@@ -60,8 +65,12 @@ class Soccer(Sport):
         for link, title_parts in links_to_matches.items():
             current_link = f"{self.url}/match/{link}"
             await self.page.goto(current_link)
-            await self.page.wait_for_selector('.smv__verticalSections')
-            await self.page.wait_for_selector('.oddsPlacement')
+            try:
+                await self.page.wait_for_selector('.smv__verticalSections')
+                await self.page.wait_for_selector('.oddsPlacement')
+            except:
+                await self.page.wait_for_selector('.smv__verticalSections')
+                await self.page.wait_for_selector('.oddsPlacement')
             data = await self.page.query_selector_all('.smv__verticalSections')
             all_data_list = []
             for i in data:
@@ -75,8 +84,16 @@ class Soccer(Sport):
                 odds_text = odds_text.split()
                 all_data_list.append(odds_text)
 
+            # Преобразуем all_data_list в строку
+            all_data_list_string = list_to_string(all_data_list)
+            print(all_data_list_string)
 
-            print(all_data_list)
+            # Записываем all_data_list_string в файл
+            league_folder = "leagues"
+            os.makedirs(league_folder, exist_ok=True)
+            file_path = os.path.join(league_folder, f'{self.league_name}.txt')
+            with open(file_path, 'a', encoding='utf-8') as file:
+                file.write(all_data_list_string + '\n')
 
 
 class ParsingPage:
@@ -127,7 +144,7 @@ class ParsingPage:
             champ = await page.locator('.heading__name').evaluate('(element) => element.textContent')
             year = await page.locator('.heading__info').evaluate('(element) => element.textContent')
             year = year.replace('/', '_')
-            self.soccer.league_name = f'{champ} {year}'
+            self.soccer.league_name = f'{champ}'
 
             for match in all_matches:
                 match_id = await match.get_attribute('id')
@@ -147,7 +164,7 @@ async def main():
 
     parser = ParsingPage(seasons_links, soccer.locator, soccer)
     await parser.open_pages()
-    # await parser.click_element_until_disappears()
+    await parser.click_element_until_disappears()
     links_to_matches = await parser.get_links_to_matches()
 
     await soccer.process_links_to_matches(links_to_matches)

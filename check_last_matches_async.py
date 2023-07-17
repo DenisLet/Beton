@@ -15,6 +15,7 @@ class Sport:
         self.context = None
         self.browser = None
         self.league_name = None
+        self.number_of_seasons = None
 
     async def open_page(self):
         pw = await async_playwright().start()
@@ -35,6 +36,9 @@ class Sport:
         year = await self.page.locator('.heading__info').evaluate('(element) => element.textContent')
         year = year.replace('/','_')
         self.league_name = f'{champ} {year}'
+
+
+
         return all_matches
 
 
@@ -43,7 +47,7 @@ class Sport:
         results = {}
         for match in all_matches:
             match_id = await match.get_attribute('id')
-            current_link = f"{self.url}match/{match_id[4:]}"
+            current_link = f"{self.url}/match/{match_id[4:]}"
             match_title = await match.inner_text()
             print(match_title.split())
             results[current_link] = match_title.split()
@@ -53,13 +57,40 @@ class Sport:
     async def switch_to_live(self):
         await self.page.locator('.filters__text--short').get_by_text('LIVE').click()
 
-    def stop_to_change_page(self):
-        input('Change page and press Enter to continue:')
+    async def stop_to_change_page(self):
+        self.number_of_seasons = input('Change page, enter number of seasons to scan and press Enter to continue:')
+
+
+    async def get_season(self):
+        seasons = await self.page.query_selector_all('.archive__season a')
+        links = []
+        for i, season in enumerate(seasons):
+            if i == 0:
+                continue
+            try:
+                season_id = await season.get_attribute('href')
+                current_link = f"{self.url}{season_id}"
+                print(current_link)
+                links.append(current_link)
+                if i == self.number_of_seasons:
+                    break
+            except Exception:
+                continue
+        assert self.number_of_seasons == len(links), 'WRONG NUMBER OF SEASONS'
+        return links
+
+
+
+
+
+
+    async def clicker_to_end(self):
+        ...
 
 
 
     async def check_league_results(self):
-        all_links = await self.extract_link_and_scores()
+        all_links = await self.get_links_to_matches()
         all_data_list = []
         for each in all_links:
             await self.page.goto(each)
@@ -94,10 +125,9 @@ class Sport:
 
 
 
-
 class Soccer(Sport):
     def __init__(self):
-        super().__init__('https://www.soccer24.com/', 90, 45, 2, 1)
+        super().__init__('https://www.soccer24.com', 90, 45, 2, 1)
 
     async def get_clear_results(self):
 
@@ -421,20 +451,28 @@ async def main():
     #     soccer.open_page(),
     #     basketball.open_page()
     # )
-    await soccer.open_page()
+
 
     # await soccer.switch_to_live()
     # await basketball.switch_to_live()
 
-    while True:
+    # await soccer.open_page()
+    # await soccer.stop_to_change_page()
+    # seasons = await soccer.get_season()
+    # for i in seasons:
+    #     await ...
 
-        soccer.stop_to_change_page()
+    while True:
+        await soccer.open_page()
+        await soccer.stop_to_change_page()
+        # await soccer.get_season()
         # r = await soccer.get_clear_results()
         # await soccer.daily_scanning_1half_with_2half()
         # lst = await soccer.extract_link_and_scores()
         # for i in lst:
         #     print(i)
         await soccer.get_league_results_all()
+        await soccer.close_page()
         await asyncio.sleep(3)
 
 asyncio.run(main())
