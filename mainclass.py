@@ -62,38 +62,94 @@ class Soccer(Sport):
         super().__init__('https://www.soccer24.com', 90, 45, 2, 1)
 
     async def process_links_to_matches(self, links_to_matches):
+        max_attempts = 3
         for link, title_parts in links_to_matches.items():
-            current_link = f"{self.url}/match/{link}"
-            await self.page.goto(current_link)
             try:
-                await self.page.wait_for_selector('.smv__verticalSections')
-                await self.page.wait_for_selector('.oddsPlacement')
+                current_link = f"{self.url}/match/{link}"
+                for attempt in range(max_attempts):
+                    try:
+                        await self.page.goto(current_link)
+                        await self.page.wait_for_selector('.smv__verticalSections')
+                        await self.page.wait_for_selector('.oddsPlacement')
+                        break
+                    except:
+                        if attempt < max_attempts - 1:
+                            print(f"Attempt {attempt + 1} failed. Retrying...")
+                        else:
+                            print(f"Max attempts reached. Cannot proceed with link: {current_link}")
+                data = await self.page.query_selector_all('.smv__verticalSections')
+                all_data_list = []
+                for i in data:
+                    text = await self.page.evaluate('(element) => element.innerText', i)
+                    text = text.split()
+                    all_data_list.append(text)
+
+                odds_data = await self.page.query_selector_all('.oddsPlacement')
+                for odds in odds_data:
+                    odds_text = await self.page.evaluate('(element) => element.innerText', odds)
+                    odds_text = odds_text.split()
+                    all_data_list.append(odds_text)
+
+                # Преобразуем all_data_list в строку
+                all_data_list_string = list_to_string(all_data_list)
+                print(all_data_list_string)
+
+                # Записываем all_data_list_string в файл
+                league_folder = "leagues"
+                os.makedirs(league_folder, exist_ok=True)
+                file_path = os.path.join(league_folder, f'{self.league_name}.txt')
+                with open(file_path, 'a', encoding='utf-8') as file:
+                    file.write(all_data_list_string + '\n')
             except:
-                await self.page.wait_for_selector('.smv__verticalSections')
-                await self.page.wait_for_selector('.oddsPlacement')
-            data = await self.page.query_selector_all('.smv__verticalSections')
-            all_data_list = []
-            for i in data:
-                text = await self.page.evaluate('(element) => element.innerText', i)
-                text = text.split()
-                all_data_list.append(text)
+                continue
 
-            odds_data = await self.page.query_selector_all('.oddsPlacement')
-            for odds in odds_data:
-                odds_text = await self.page.evaluate('(element) => element.innerText', odds)
-                odds_text = odds_text.split()
-                all_data_list.append(odds_text)
 
-            # Преобразуем all_data_list в строку
-            all_data_list_string = list_to_string(all_data_list)
-            print(all_data_list_string)
+class Basketball(Sport):
+    def __init__(self):
+        super().__init__('https://www.basketball24.com', 40, 10, 4, 3)
 
-            # Записываем all_data_list_string в файл
-            league_folder = "leagues"
-            os.makedirs(league_folder, exist_ok=True)
-            file_path = os.path.join(league_folder, f'{self.league_name}.txt')
-            with open(file_path, 'a', encoding='utf-8') as file:
-                file.write(all_data_list_string + '\n')
+
+    async def process_links_to_matches(self, links_to_matches):
+        max_attempts = 3
+        for link, title_parts in links_to_matches.items():
+            try:
+                current_link = f"{self.url}/match/{link}"
+                for attempt in range(max_attempts):
+                    try:
+                        await self.page.goto(current_link)
+                        await self.page.wait_for_selector('.smh__template')
+                        await self.page.wait_for_selector('.oddsPlacement')
+                        break
+                    except:
+                        if attempt < max_attempts - 1:
+                            print(f"Attempt {attempt + 1} failed. Retrying...")
+                        else:
+                            print(f"Max attempts reached. Cannot proceed with link: {current_link}")
+                data = await self.page.query_selector_all('.smh__template')
+                all_data_list = []
+                for i in data:
+                    text = await self.page.evaluate('(element) => element.innerText', i)
+                    text = text.split()
+                    all_data_list.append(text)
+
+                odds_data = await self.page.query_selector_all('.oddsPlacement')
+                for odds in odds_data:
+                    odds_text = await self.page.evaluate('(element) => element.innerText', odds)
+                    odds_text = odds_text.split()
+                    all_data_list.append(odds_text)
+
+                # Преобразуем all_data_list в строку
+                all_data_list_string = list_to_string(all_data_list)
+                print(all_data_list_string)
+
+                # Записываем all_data_list_string в файл
+                league_folder = "leaguesBB"
+                os.makedirs(league_folder, exist_ok=True)
+                file_path = os.path.join(league_folder, f'{self.league_name}.txt')
+                with open(file_path, 'a', encoding='utf-8') as file:
+                    file.write(all_data_list_string + '\n')
+            except:
+                continue
 
 
 class ParsingPage:
@@ -101,7 +157,7 @@ class ParsingPage:
         self.urls = urls
         self.pages = []
         self.locator = locator
-        self.soccer = soccer
+        self.soccer = soccer  # обфускация )))
 
     async def open_pages(self):
         pw = await async_playwright().start()
@@ -157,20 +213,31 @@ class ParsingPage:
 
 
 async def main():
-    soccer = Soccer()
-    page = await soccer.open_page()
-    await soccer.stop_to_change_page()
-    seasons_links = await soccer.get_seasons_links()
+    # soccer = Soccer()
+    basketball = Basketball()
+    # page = await soccer.open_page()
+    # await soccer.stop_to_change_page()
+    # seasons_links = await soccer.get_seasons_links()
+    #
+    # parser = ParsingPage(seasons_links, soccer.locator, soccer)
+    # await parser.open_pages()
+    # await parser.click_element_until_disappears()
+    # links_to_matches = await parser.get_links_to_matches()
+    #
+    # await soccer.process_links_to_matches(links_to_matches)
+    #
+    # await parser.close_pages()
+    # await soccer.close_page()
+    page = await basketball.open_page()
+    await basketball.stop_to_change_page()
+    seasons_links = await basketball.get_seasons_links()
 
-    parser = ParsingPage(seasons_links, soccer.locator, soccer)
+    parser = ParsingPage(seasons_links, basketball.locator, basketball)
     await parser.open_pages()
     await parser.click_element_until_disappears()
     links_to_matches = await parser.get_links_to_matches()
-
-    await soccer.process_links_to_matches(links_to_matches)
-
+    await basketball.process_links_to_matches(links_to_matches)
     await parser.close_pages()
-    await soccer.close_page()
-
+    await basketball.close_page()
 
 asyncio.run(main())

@@ -13,3 +13,5 @@ soccer_first_half_often = [
                             (7, 0), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 7)
 ]
 
+from soccer_nice import nice_dict
+

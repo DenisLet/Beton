@@ -90,7 +90,7 @@ class Sport:
 
 
     async def check_league_results(self):
-        all_links = await self.get_links_to_matches()
+        all_links = await self.extract_link_and_scores()
         all_data_list = []
         for each in all_links:
             await self.page.goto(each)
@@ -101,13 +101,13 @@ class Sport:
             for i in data:
                 text = await self.page.evaluate('(element) => element.innerText', i)
                 text = text.split()
-                # print(text)
+                print(text)
                 to_list.append(text)
                 odds_data = await self.page.query_selector_all('.oddsPlacement')
                 for odds in odds_data:
                     odds_text = await self.page.evaluate('(element) => element.innerText', odds)
                     odds_text = odds_text.split()
-                    # print(odds_text)
+                    print(odds_text)
                     to_list.append(odds_text)
             all_data_list.append(to_list)
 
